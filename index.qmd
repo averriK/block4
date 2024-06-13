@@ -1,0 +1,36 @@
+
+
+```{r}
+
+
+
+DT <- NULL
+for (RM in c("lm","rf","kknn")){
+  AUX <- fitModel(.data=DATA,regression=RM,response="LnV")
+  DT <- rbindlist(list(DT,data.table(ID=RM,R2=AUX$R2,MSE=AUX$MSE,RMSE=AUX$RMSE)))
+}
+
+
+TBL <- DT[,lapply(.SD,function(x){round(x,digits=2)}),by=.(ID)]
+TBL[ID=="lm",`:=`(model="Linear Model",p="5-parameters")]
+TBL[ID=="rf",`:=`(model="Random Forest",p="non-parametric")]
+TBL[ID=="kknn",`:=`(model="K-Nearest Neighbors",p="non-parametric")]
+
+# Example. PPV Ranges for PGA=0.097 g
+# 
+# 
+# log(PPV) = 3.2243 - 3.4520e-1*PGA +9.2008E-01*log(PGA)+1.1053e-5*1/PGA
+
+```
+
+
+
+```{r include=TRUE,echo=FALSE}
+#| label: tbl-AE
+#| tbl-cap: "Machine-Learning Models implemented. Performance Parameters"
+
+TBL |> buildTable::buildTable(library="flextable",format="html")
+
+
+```
+
